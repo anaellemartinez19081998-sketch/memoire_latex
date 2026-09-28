@@ -1,0 +1,237 @@
+
+\newacronym{lcc}{LCC}{\textit{Library of Congress Classification}}
+\newacronym{ddc}{DDC}{\textit{Dewey Decimal Classification}}
+\newacronym{lcsh}{LCSH}{\textit{Library of Congress Subject Headings}}
+\newacronym{rameau}{RAMEAU}{Répertoire d'autorité-matière encyclopédique et alphabétique unifié}
+\newacronym{fnpr}{FNPR}{Fichier national des propositions RAMEAU}
+\newacronym{sigb}{SIGB}{Système intégré de gestion de bibliothèque}
+\newacronym{marc}{MARC}{\textit{MAchine-Readable Cataloging}}
+\newacronym{opac}{OPAC}{\textit{Online Public Access Catalog}}
+\newacronym{inha}{INHA}{Institut national d'histoire de l'art}
+\newacronym{bmo}{BM'O}{Bibliothèque du musée d'Orsay}
+\newacronym{ecd}{ECD}{\textit{Exploring Computational Description}}
+\newacronym{llm}{LLM}{\textit{Large Language Model}}
+\newacronym{gpt}{GPT}{\textit{Generative Pre-trained Transformer}}
+\newacronym{api}{API}{\textit{Application Programming Interface}}
+\newacronym{rest}{REST}{\textit{Representational State Transfer}}
+\newacronym{sdk}{SDK}{\textit{Software Development Kit}}
+\newacronym{json}{JSON}{\textit{JavaScript Object Notation}}
+\newacronym{csv}{CSV}{\textit{Comma-Separated Values}}
+\newacronym{sru}{SRU}{\textit{Search/Retrieve via URL}}
+\newacronym{isbn}{ISBN}{\textit{International Standard Book Number}}
+\newacronym{hitl}{HITL}{\textit{Human-in-the-loop}}
+
+% ------------------------------------------------------------
+% 2. CONCEPTS BIBLIOTHÉCONOMIQUES
+% ------------------------------------------------------------
+\newglossaryentry{locong}{
+  name={Library of Congress},
+  description={Bibliothèque du Congrès des États-Unis, à l'origine de la classification \gls{lcc} et du langage d'indexation \gls{lcsh}}
+}
+
+\newglossaryentry{classification-documentaire}{
+  name={classification documentaire},
+  description={Organisation des documents par disciplines ou sujets au sein d'un système normé (\gls{lcc}, \gls{ddc}, etc.)}
+}
+
+\newglossaryentry{indexation-matiere}{
+  name={indexation matière},
+  description={Attribution de termes normalisés (vedettes-matière) décrivant le sujet intellectuel d'un document}
+}
+
+\newglossaryentry{cote}{
+  name={cote},
+  description={Code alphanumérique déterminant le rangement physique d'un exemplaire en rayon}
+}
+
+\newglossaryentry{cutter}{
+  name={cutter},
+  description={Code alphanumérique dérivé du nom d'auteur, du titre ou d'une zone géographique, utilisé pour ordonner les documents dans une même sous-classe \gls{lcc}}
+}
+
+\newglossaryentry{sanborn}{
+  name={table Cutter-Sanborn},
+  description={Table de conversion standardisée faisant correspondre un nom d'auteur à un code alphanumérique (voir \gls{cutter}), utilisée en dernier repli dans ce mémoire lorsque les tables locales de la \gls{bmo} ne couvrent pas l'auteur concerné}
+}
+
+\newglossaryentry{vedette-matiere}{
+  name={vedette-matière},
+  description={Terme ou expression normalisée servant de point d'accès matière dans un catalogue}
+}
+
+
+\newglossaryentry{grande-classe}{
+  name={grande classe},
+  description={Premier niveau hiérarchique de la \gls{lcc}, désigné par une lettre majuscule (ex.~: N pour les beaux-arts)}
+}
+
+\newglossaryentry{sous-classe}{
+  name={sous-classe},
+  description={Deuxième niveau hiérarchique de la \gls{lcc}, désigné par une ou deux lettres complémentaires (ex.~: ND pour la peinture)}
+}
+
+\newglossaryentry{plan-cotation}{
+  name={plan de cotation},
+  description={Sous-ensemble de classes \gls{lcc} retenu par une bibliothèque pour son propre fonds}
+}
+
+\newglossaryentry{cote-orsay}{
+  name={cote Orsay},
+  description={Système de cotation interne de la bibliothèque du musée d'Orsay}
+}
+
+\newglossaryentry{plan-reduit}{
+  name={plan réduit BM'O},
+  description={Sous-ensemble de sous-classes \gls{lcc} validé par la bibliothèque du musée d'Orsay pour son propre fonds}
+}
+
+\newglossaryentry{shm}{
+  name={SHM},
+  long={Subject Headings Manual},
+  description={Manuel de règles d'application des vedettes-matière de la \gls{locong}, dont le filtrage quantitatif est évoqué en Partie 3 comme piste de correction future\footcite{chow2026}}
+}
+
+\newglossaryentry{opendata}{
+  name={open data},
+  description={Données mises à disposition sous une licence en permettant la réutilisation libre et gratuite, y compris commerciale, sous réserve de mention de la source}
+}
+
+% ------------------------------------------------------------
+% 3. CONCEPTS IA / TRAITEMENT AUTOMATIQUE DES LANGUES
+% ------------------------------------------------------------
+\newglossaryentry{incontext}{
+  name={apprentissage en contexte},
+  description={\textit{In-context learning} : capacité d'un \gls{llm} à adapter son comportement à une tâche donnée à partir d'exemples fournis directement dans le \gls{prompt}, sans modification de ses paramètres internes (voir \gls{fewshot})}
+}
+
+\newglossaryentry{finetuning}{
+  name={fine-tuning},
+  description={Réglage fin : action de poursuivre l'entraînement d'un modèle déjà pré-entraîné sur un jeu de données propre à une tâche donnée, ce qui modifie ses paramètres internes, à la différence du \textit{prompting}, qui se contente de formuler une instruction sans toucher au modèle}
+}
+
+\newglossaryentry{prompt}{
+  name={prompt},
+  description={Instruction textuelle transmise à un grand modèle de langage pour orienter sa réponse, éventuellement accompagnée d'exemples (voir \gls{fewshot})}
+}
+
+\newglossaryentry{fewshot}{
+  name={few-shot prompting},
+  description={Technique consistant à fournir à un modèle de langage, directement dans le \gls{prompt}, quelques exemples déjà résolus d'une tâche donnée, pour orienter son comportement sans réentraînement (voir \gls{finetuning})}
+}
+
+\newglossaryentry{embedding}{
+  name={embedding},
+  description={Représentation vectorielle : association, à un texte, d'un vecteur numérique de grande dimension construit de telle sorte que deux textes proches sur le plan sémantique soient représentés par des vecteurs proches dans cet espace. La proximité entre deux \textit{embeddings} se mesure classiquement par la similarité cosinus}
+}
+
+\newglossaryentry{cosinus}{
+  name={similarité cosinus},
+  description={Mesure de proximité entre deux \gls{embedding}s, fondée sur l'angle entre les deux vecteurs plutôt que sur leur norme ; utilisée dans ce mémoire pour sélectionner les exemples \gls{fewshot} les plus proches d'une notice à coter}
+}
+
+\newglossaryentry{token}{
+  name={token},
+  description={Unité minimale de traitement d'un modèle de langage, pouvant correspondre à un mot, une partie de mot ou un caractère}
+}
+
+\newglossaryentry{temperature}{
+  name={température},
+  description={Paramètre de génération d'un modèle de langage qui contrôle le degré d'aléa introduit dans la sélection du prochain \gls{token} : une valeur élevée augmente la diversité des réponses au détriment de la reproductibilité, une valeur proche de zéro rend la génération quasi déterministe}
+}
+
+\newglossaryentry{hallucination}{
+  name={hallucination},
+  description={Génération, par un modèle de langage, d'un contenu syntaxiquement correct et plausible mais factuellement inexact ou non fondé sur des données vérifiables\footcite{ji2023}}
+}
+
+\newglossaryentry{knowledgeconflicts}{
+  name={conflits de connaissances},
+  description={\textit{Knowledge conflicts} : tension entre une information fournie dans le contexte d'un modèle de langage et la connaissance interne qu'il a acquise pendant son entraînement, les modèles ayant tendance à privilégier cette dernière par défaut\footcite{xu2024}}
+}
+
+\newglossaryentry{circuitbreaker}{
+  name={disjoncteur},
+  description={\textit{Circuit breaker} : mécanisme interrompant un traitement automatisé après un nombre défini d'échecs consécutifs d'un même service externe, pour éviter de saturer inutilement ce service ou de poursuivre sur des données dégradées}
+}
+
+\newglossaryentry{longuetraine}{
+  name={effet de longue traîne},
+  description={Phénomène par lequel un domaine occupe une place marginale dans un corpus d'entraînement général de \gls{llm}, alors qu'il peut être parfaitement structuré et central dans son propre contexte d'usage professionnel\footcite{kandpal2023,badhe2026}}
+}
+
+\newglossaryentry{majoritybias}{
+  name={biais de classe majoritaire},
+  description={\textit{Majority label bias} : tendance d'un modèle de langage à sur-prédire les classes les plus fréquemment représentées dans ses données d'entraînement, indépendamment du contenu réel du document à classer\footcite{zhao2021}}
+}
+
+\newglossaryentry{lostinmiddle}{
+  name={lost in the middle},
+  description={Tendance d'un modèle de langage à moins bien exploiter les informations situées au centre d'une longue liste fournie en contexte, indépendamment de leur pertinence réelle\footcite{liu2023}}
+}
+
+\newglossaryentry{labelspacereduction}{
+  name={Label Space Reduction},
+  description={Méthode consistant à réduire progressivement le nombre de classes candidates présentées à un modèle de langage pour une tâche de classification, afin qu'il se concentre sur les options les plus pertinentes\footcite{vandemoortele2025}}
+}
+
+\newglossaryentry{bottleneck}{
+  name={goulot d'étranglement},
+  description={\textit{Bottleneck} : déficit de connaissance de la structure hiérarchique d'un référentiel de classification, distinct d'un déficit de capacité de raisonnement du modèle\footcite{bottleneck2026}}
+}
+
+\newglossaryentry{aiintheloop}{
+  name={AI-in-the-loop},
+  description={Variante de l'approche \gls{hitl} où l'intelligence artificielle intervient en support ponctuel d'un processus resté majoritairement humain, plutôt que l'inverse}
+}
+
+\newglossaryentry{pipeline}{
+  name={pipeline},
+  description={Au sens informatique, chaîne de traitement automatisé composée de plusieurs étapes successives, chacune transformant ou enrichissant la donnée avant de la transmettre à l'étape suivante}
+}
+
+\newglossaryentry{workflow}{
+  name={workflow},
+  description={Enchaînement structuré des étapes d'un processus de travail ; désigne dans ce mémoire l'articulation proposée entre proposition automatique du pipeline et vérification humaine}
+}
+
+% ------------------------------------------------------------
+% 4. CONCEPTS PROPRES À CE MÉMOIRE
+% ------------------------------------------------------------
+\newglossaryentry{attracteur}{
+  name={effet d'attracteur},
+  description={Tendance d'un modèle de langage à converger, en cas d'incertitude, vers une même réponse par défaut plutôt que vers une analyse propre à chaque cas ; observé dans ce mémoire sur plusieurs grandes classes du corpus (voir Partie 3, \S\ref{sec:taxonomie-erreurs})}
+}
+
+\newglossaryentry{poolfewshot}{
+  name={pool few-shot},
+  description={Ensemble des notices de référence dans lequel le pipeline sélectionne, par \gls{cosinus}, les exemples \gls{fewshot} à présenter au modèle (voir Partie 2, \S\ref{sec:niveau3-llm})}
+}
+
+\newglossaryentry{lca}{
+  name={LCA},
+  long={\textit{Lowest Common Ancestor}},
+  description={Plus proche ancêtre commun : dans une structure hiérarchique arborescente, le nœud le plus spécifique qui contient à la fois deux nœuds donnés. Utilisé dans ce mémoire pour mesurer la distance hiérarchique entre une cote proposée et une cote de référence (voir Partie 2, \S\ref{sec:distance-lca})}
+}
+
+\newglossaryentry{score-lca}{
+  name={score LCA},
+  description={Score de proximité hiérarchique entre deux cotes, fondé sur la distance normalisée à leur plus proche ancêtre commun (voir \gls{lca})}
+}
+
+% ------------------------------------------------------------
+% 5. MÉTHODES STATISTIQUES
+% ------------------------------------------------------------
+\newglossaryentry{wilcoxon}{
+  name={test de Wilcoxon},
+  description={Test statistique non paramétrique adapté aux comparaisons appariées (même notice évaluée dans deux conditions), qui compare les rangs des différences observées entre les deux conditions plutôt que leurs moyennes directement}
+}
+
+\newglossaryentry{bootstrap}{
+  name={bootstrap},
+  description={Méthode statistique consistant à ré-échantillonner aléatoirement, avec remise, les données observées un grand nombre de fois, afin d'estimer la variabilité d'une statistique sans supposer que les données suivent une loi connue}
+}
+
+\newglossaryentry{bonferroni}{
+  name={correction de Bonferroni},
+  description={Ajustement du seuil de significativité pour tenir compte du nombre de comparaisons multiples}
+}

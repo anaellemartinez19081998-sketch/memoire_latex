@@ -1,0 +1,304 @@
+%Document vide aux normes de l'École nationale des Chartes
+%crée par J.B. Camps
+%Dernières modifications E. Rouquette (03/2026)
+
+%%%%%%%%%%%%%%%%%%%%%% PRÉAMBULE
+
+
+%%%%%%%%%%%%%% partie obligatoire du préambule
+\documentclass[12pt,twoside]{book}
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{polyglossia}
+\setmainlanguage{french}%indiquer la langue principale du document
+%\setotherlanguage{} %indiquer les autres langues utilisée
+\setotherlanguage{english}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PACKAGES UTILISÉS
+
+\usepackage{csquotes} % les guillemets français
+\usepackage{lettrine} %faire une lettrine
+\usepackage[style=enc,sorting=nyt,maxbibnames=10]{biblatex}%charger le style de l'EnC (téléchargeable ici https://ctan.org/pkg/biblatex-enc).
+\counterwithout{footnote}{chapter}%numérotation continue des notes de bas de page sur tout le mémoire (sans remise à zéro à chaque chapitre)
+\addbibresource{./bibliographie.bib}%le fichier bibliographique, chemin relatif depuis le document maître
+
+
+%RAJOUTEZ ICI VOS PACKAGES
+
+ \usepackage{multicol}%Package pour pouvoir répartir des points sur deux colonnes
+
+ \usepackage{graphicx} %Paquets ajouté pour inclure des figures, schémas, images, etc
+ \usepackage{caption} % ajouté afin de créer des légendes pour les figures, schémas
+ \usepackage{float} % Lors de l'insertion d'une figure, tout texte écrit après ce met au dessus de la figure (option [H]) 
+ \usepackage{tabularx} %package permettant d'ajuster les colonnes d'un tableau LaTeX 
+ \usepackage{booktabs} % permet plus de choix dans les séparateurs de tableaux. \toprule, \midrule, \bottomrule
+ \usepackage{tikz}%dessiner des schémas directement en LaTeX (environnement tikzpicture), utilisé pour l'anatomie d'une cote LCC (partie 1)
+ \usetikzlibrary{positioning, arrows.meta, shapes.geometric, fit, shadows, calc} %Ajout de librairie supplémentaire au package tikz afin de créer plus de variétées de schéma.
+ \usetikzlibrary{decorations.pathreplacing}%bibliothèque TikZ pour tracer des accolades (style brace de la figure de la cote LCC)
+ \usepackage{xurl} % Package qui permet de couper automatiquement les URL si elles sont trop longues mais garder la possibilité de cliquer dessus. 
+
+ \usepackage{listings}%afficher du code source (environnement lstlisting), utilisé pour l'extrait Python de la table de correspondance (partie 2)
+ \usepackage{multirow}%fusionner des cellules sur plusieurs lignes (\multirow), utilisé pour les p-valeurs des tableaux de résultats (partie 3)
+ 
+ \usepackage{nameref} %ajoute \nameref{label} : renvoie au titre d'une section et non à son numéro (utilisé dans mes commandes \fullref et \textref)
+ 
+ 
+\counterwithout{figure}{chapter} %numérotation continue des figures (Figure 1, 2, 3...) au lieu de Figure 1.1, 2.1...
+\counterwithout{figure}{section} %  %idem, sans dépendance à la section
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CONFIGURATION DE MISE EN PAGE
+
+%%%%%% Les compteurs (sections, subsections, etc)
+
+\renewcommand{\thesection}{\Roman{section}.}%sections en chiffres romains (I., II.)
+\renewcommand{\thesubsection}{\arabic{subsection}.}%subsection en chiffres arabes
+\renewcommand{\thesubsubsection}{\alph{subsubsection}.}%subsubsection en lettres minuscules
+\setcounter{tocdepth}{3}%les subsubsections apparaissent dans la table des matières
+\setcounter{secnumdepth}{3}  % La subsubsection (profondeur=3 dans la table des matières) apparait numérotée
+
+
+
+%%%%%  Configurer le document selon les normes de l'école
+
+\usepackage[margin=2.5cm]{geometry} %marges
+\usepackage{setspace} % espacement qui permet ensuite de définir un interligne
+\onehalfspacing % interligne de 1.5
+\setlength\parindent{1cm} % indentation des paragraphes à 1 cm
+
+
+%%%%% Mise en forme des headers (haut de page)
+
+\usepackage{fancyhdr} %package utilisé pour modifier les headers
+\pagestyle{fancy} %utiliser ses propres choix de mise en page et non ceux par défaut du package
+
+\setlength\headheight{16pt}%la hauteur des headers
+
+%%la façon dont les sections apparaissent dans les en-tête:
+
+\renewcommand{\sectionmark}[1]{\markright{\small\textit{\thesection~\  #1}}}%%sections en petit et en italique dans les en-têtes
+
+%% réglages propres à frontmatter
+
+\appto\frontmatter{\pagestyle{fancy}%
+	\renewcommand{\chaptermark}[1]{\markboth{\small\textit{#1}}{}}% ne pas faire apparaître de <<numéro>> de chapitre dans les chapitres non numérotés (front: l'introduction, els remerciement, etc)
+}
+
+%% réglages propres à mainmatter
+
+\appto\mainmatter{
+\renewcommand{\chaptermark}[1]{\markboth{\small\chaptername~\thechapter~--\ \textit{#1}}{}}%faire apparaître dans les headers les sections en  petit et en italiques
+%\renewcommand{\chaptermark}[1]{}%Commenter la ligne précédente et mettre celle-ci pour ne pas avoir le titre des chapitres  dans le header
+}
+
+%% réglages propres aux annexes
+
+\appto\appendix{
+	\renewcommand{\chaptermark}[1]{\markboth{\small~Annexe \thechapter~--\ \textit{#1}}{}}%faire apparaître dans les headers le nom des annexes
+	%\renewcommand{\chaptermark}[1]{}%Commenter la ligne précédente et mettre celle-ci pour ne pas avoir le titre des chapitres  dans le header
+}
+
+
+%%%%%%% Package hyperref
+
+% A mettre après les autres appels de packages car redéfinit certaines commandes).
+
+\usepackage[colorlinks=false, breaklinks=true, pdfusetitle, pdfsubject={Mémoire TNAH}, pdfkeywords={classification, intelligence artificielle, bibliothèque patrimoniale, LCC}]{hyperref}
+\usepackage[numbered]{bookmark}%va avec hyperref; marche mieux pour les signets. l'option numbered: les signets dans le pdf sont numérotés
+
+
+%%%%%%%%%%%%%%%%%%%% Package glossaries
+
+%Exception: il faut le charger APRÈS hyperref
+\usepackage[acronym,toc]{glossaries}
+\makenoidxglossaries
+%avec TexStudio: F9 pour compiler le glossaire (s'il y a aussi un index)
+
+\loadglsentries{./glossaire.tex} %permet de faire le lien avec mon document de glossaire et de l'utiliser.
+
+
+%%%%%%%%%%%%%%%%%% DÉFINITION DES COMMANDES ET ENVIRONNMENTS
+
+%Commande biblatex : supprime l'URL, la date de consultation et le DOI dans les citations en note
+%(ces informations restent dans la bibliographie finale, les notes sont plus lisibles)
+\AtEveryCitekey{\clearfield{url}\clearfield{urldate}\clearfield{doi}}
+ 
+%\guillemet{texte} : met le texte entre guillemets français « »
+%un argument (#1) = le texte
+\newcommand{\guillemet}[1]{\guillemetleft {#1} \guillemetright}
+ 
+%\fullref{label} : renvoi interne complet en italique
+%combine \ref (numéro), \nameref (titre, package nameref) et \pageref (page)
+%un argument (#1) = le label posé sur le chapitre ou la section visé
+\newcommand{\fullref}[1]{\textit{Chapitre~\ref{#1} «~\nameref{#1}~» page \pageref{#1}}}
+ 
+%\textref{label} : même renvoi que \fullref, mais en romain et sans majuscule,
+%pour l'insérer au milieu d'une phrase ("voir le chapitre 2 « ... » page 34")
+\newcommand{\textref}[1]{chapitre~\ref{#1} «~\nameref{#1}~» page \pageref{#1}}
+ 
+
+ %%%%%%%%%%%%%% INFORMATIONS POUR LA PAGE DE TITRE
+ 
+\author{Anaëlle \textsc{Martinez} - M2 TNAH}
+\title{Dans quelle mesure les spécificités documentaires d'une bibliothèque patrimoniale spécialisée conditionnent-elles la possibilité d'automatiser la cotation Library of Congress, et quelles limites imposent-elles à cette automatisation~?}
+
+%%%%%%%%%%%%%%%%%%%%%% DOCUMENT
+\begin{document}
+	\begin{titlepage}
+		\begin{center}
+			
+			\bigskip
+			
+			\begin{large}				
+				ÉCOLE NATIONALE DES CHARTES\\
+				UNIVERSITÉ PARIS, SCIENCES \& LETTRES
+			\end{large}
+			\begin{center}\rule{2cm}{0.02cm}\end{center}
+			
+			\bigskip
+			\bigskip
+			\bigskip
+			\begin{Large}
+				\textbf{Anaëlle Martinez}\\
+			\end{Large}
+			\begin{normalsize} \textit{diplômée de master}
+				
+			\end{normalsize}
+			
+			\bigskip
+			\bigskip
+			\bigskip
+			
+			\begin{Huge}
+				\textbf{Dans quelle mesure les spécificités documentaires d'une bibliothèque patrimoniale spécialisée conditionnent-elles la possibilité d'automatiser la cotation \textit{Library of Congress} ~?}\\
+			\end{Huge}
+			\bigskip
+			\bigskip
+			\begin{LARGE}
+				\textbf{Une automatisation par modèle de langage pour la Bibliothèque du musée d'Orsay}\\
+			\end{LARGE}
+			
+			\bigskip
+			\bigskip
+			\bigskip
+			\begin{large}
+				Sous la direction de \textbf{Lauryne Lemosquet}
+			\end{large}
+			\vfill
+			
+			\begin{large}
+				Mémoire 
+				pour le diplôme de master \\
+				\enquote{Technologies Numériques Appliquées à l'Histoire} \\
+				\bigskip
+				2026
+			\end{large}
+			
+		\end{center}
+	\end{titlepage}
+
+	\thispagestyle{empty}	
+	\cleardoublepage
+	
+\frontmatter
+
+	\chapter{Résumé}
+\medskip
+	
+	Ce mémoire questionne l'automatisation de la cotation Library of Congress Classification (LCC) par un modèle de langage, dans le contexte spécifique de la bibliothèque du musée d'Orsay (BM'O). Un \textit{pipeline} en cascade a été conçu et testé sur un corpus de substitution de 201 notices, permettant d'isoler l'effet de plusieurs leviers~: le plan de cotation utilisé (réduit et curaté par la bibliothèque, ou barème officiel complet), la priorisation des vedettes RAMEAU, et l'usage d'exemples \textit{few-shot}.
+
+	Les résultats montrent que l'effet de ces leviers n'est pas uniforme selon les grandes classes du corpus~: le plan réduit améliore nettement les résultats pour certaines classes. Ce mémoire propose enfin les modalités concrètes d'un \textit{workflow} associant proposition automatique et vérification humaine, adapté aux spécificités de chaque classe documentaire.
+
+	\textbf{Mots-clés:} Library of Congress Classification; Intelligence artificielle; Modèles de langage; Bibliothèque patrimoniale; Cotation automatisée; Musée d'Orsay.\newline
+
+	\textbf{Informations bibliographiques:} Anaëlle Martinez, \textit{Dans quelle mesure les spécificités documentaires d'une bibliothèque patrimoniale spécialisée conditionnent-elles la possibilité d'automatiser la cotation Library of Congress, et quelles limites imposent-elles à cette automatisation~?}, mémoire de master \enquote{Technologies numériques appliquées à l'histoire}, dir. Lauryne Lemosquet, École nationale des chartes, 2026.
+
+    \clearpage
+    \begin{otherlanguage}{english}
+\section*{Abstract}
+
+This master's thesis investigates the automation of Library of Congress
+Classification (LCC) shelving through a large language model (LLM), within
+the specific context of a specialised heritage library: the Musée d'Orsay
+Library (BM'O). A cascading pipeline was designed and tested on a
+substitution corpus of 201 records, making it possible to isolate the
+effect of several levers: the classification scheme used (reduced and
+curated by the library, or the full official schedule), the prioritisation
+of RAMEAU subject headings, and the use of few-shot examples.
+
+The results show that the effect of these levers is not uniform across the
+main classes of the corpus: the reduced scheme significantly improves
+results for some classes, but turns against others. The thesis finally proposes concrete
+modalities for a workflow combining automatic suggestion and human
+verification, adapted to the specificities of each documentary class.
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} Library of Congress Classification; Artificial
+Intelligence; Large Language Models; Heritage Library; Cataloging; Classification; Orsay Museum.
+
+\vspace{0.5em}
+\noindent\textbf{Bibliographic information:} Anaëlle Martinez, \emph{To what
+extent do the documentary specificities of a specialised heritage library
+condition the possibility of automating Library of Congress classification,
+and what limits do they impose on such automation?}, master's thesis in
+``Digital Technologies Applied to History'', supervised by Lauryne Lemosquet, École nationale des chartes, 2026.
+\end{otherlanguage}
+		\newpage{\pagestyle{empty}\cleardoublepage}
+	
+	\chapter{Remerciements}
+	
+\lettrine{J}e remercie mon directeur de stage,  Matthieu Bonicel, pour son accueil et sa patience. Ses conseils de terrain et sa connaissance fine des enjeux de la cotation documentaire ont été décisifs dans la construction de ce mémoire présenté ici.\newline
+
+Ma gratitude va aussi à toute l'équipe du Musée d'Orsay, pour son accueil chaleureux et pour les échanges cordiaux durant le stage.\newline
+
+Je tiens à exprimer ma profonde reconnaissance à Lauryne Lemosquet, ma tutrice de mémoire. Ses relectures attentives, ses conseils  et sa disponibilité ont nourri ce travail.\newline
+
+Je remercie ma famille pour son soutien, sa patience et ses encouragements dans les moments de doute.\newline
+
+Enfin, mes pensées vont à Khaled, Dalal et Nick, ainsi qu'à mon entourage MiniMin. Merci d'avoir été là.
+\enquote{Carpe diem ; ad astra per aspera}
+
+À toutes et à tous, ma sincère gratitude.
+	\newpage{\pagestyle{empty}\cleardoublepage}
+
+	
+%%%%%%%%%%%% \bibliographie ici (normes de l'EnC)
+
+\nocite{*}
+\printbibliography[keyword=classification, title={Classification LCC, DDC et RAMEAU}]
+\printbibliography[keyword=ia-catalogage, title={Intelligence artificielle appliquée au catalogage}]
+\printbibliography[keyword=llm-comportement, title={Comportement des modèles de langage}]
+\printbibliography[keyword=methodologie, title={Méthodologie statistique}]
+\printbibliography[keyword=terrain, title={Sources de terrain (BM'O)}]
+
+\input{./introduction.tex}
+
+\mainmatter
+
+\part{Contexte et cadrage~: la bibliothèque du musée d'Orsay et l'automatisation de la cotation}
+\input{./partie1.tex}
+
+\part{Conception du \textit{pipeline} d'automatisation}
+\chapter{Architecture du \textit{pipeline} en cascade}
+\input{./partie2.tex}
+
+\part{Résultats, discussion et \textit{workflow} proposé}
+\input{./partie3.tex}
+
+\input{./conclusion.tex}
+
+\appendix
+\chapter[Github des livrables techniques]{Github des livrables techniques}
+\input{./annexe.tex}
+
+\backmatter
+
+\glsaddall
+\printnoidxglossary[type=\acronymtype,title={Liste des acronymes}]
+\printnoidxglossary[title={Glossaire}]
+
+\listoftables
+\listoffigures
+\tableofcontents
+
+\end{document}

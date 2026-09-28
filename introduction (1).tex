@@ -1,0 +1,92 @@
+% !TEX root = memoire.tex
+% !BIB program = biber
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+\markboth{\small\textit{Introduction}}{\small\textit{Introduction}}
+\label{chap:introduction}
+
+\begin{flushright}
+\begin{minipage}{0.75\textwidth}
+\raggedleft
+\itshape
+The affinities of all the beings of the same class have sometimes been represented by a great tree. I believe this simile largely speaks the truth.
+
+\upshape
+\small
+[Les affinités entre tous les êtres d'une même classe ont parfois été représentées par un grand arbre. Je crois que cette image dit largement la vérité.]
+
+\vspace{0.3em}
+--- Charles Darwin, \textit{On the Origin of Species}, 1859, chap.~IV.
+\end{minipage}
+\end{flushright}
+
+\vspace{1.5em}
+
+
+Darwin ne parlait pas de bibliothèque en 1859. Il cherchait à expliquer et représenter les liens de parenté entre les espèces vivantes en choisissant l'image de l'arbre. Une racine commune, des branches qui se séparent les unes des autres au fil du temps et des feuilles dont chacune ont leurs propriétés uniques tout en restant attachées à un tronc partagé.
+Cette représentation d'arbre est une représentation utilisée bien au-delà de la biologie. Toute discipline confrontée à un problème d'organisation, de rangement dans un ordre intelligible, tôt ou tard va utiliser une architecture arborescente. La classification bibliographique est l'une d'entre elles.
+
+La \textit{Library of Congress Classification}(LCC) organise elle aussi le savoir selon une hiérarchie arborescente. On retrouve une grande classe qui se ramifie en sous-classes ramifiées en sujets de plus en plus précis, un peu de la manière dont une espèce se ramifie en sous-espèces. 
+
+On peut voir dans ce rapprochement deux tentatives qui coïncident. La classification bibliographique et la théorie de Darwin, la classification bibliographique du XIX\textsuperscript{e} siècle et la classification du vivant théorisée par Darwin sont deux tentatives, contemporaines l'une de l'autre, de répondre à la question : comment organiser un ensemble hétérogène d'éléments en un ordre intelligible et hiérarchique ?
+
+Depuis quelques années, l'essor des grands modèles de langage, ces intelligences artificielles capables de comprendre et de générer du texte, ouvre de nouvelles problématiques et possibilités dans le monde des sciences informatiques et plus précisément dans les domaines du catalogage. Dans un même mouvement, les institutions documentaires cherchent à tirer parti des nouveaux outils d'intelligence artificielle pour leurs tâches de catalogage, et une de leurs problématiques s'inscrit dans le cas concret étudié dans ce mémoire.
+
+
+ Toutes explorent, avec des résultats largement convergents, ce que ces nouveaux outils permettent réellement de faire, et surtout ce qu'ils ne savent pas encore bien faire.
+
+
+Ce qui intéresse ce mémoire, ce sont les promesses et les limites de ces grands modèles de langage. Des grandes institutions ont déjà testé ou sont encore en train de tester ces outils qui évoluent de manière exponentielle, et rapportent un constat similaire : une intelligence artificielle sait bien reconnaître un titre ou un nom d'auteur, mais se trompe le plus souvent lorsqu'il s'agit de choisir une catégorie thématique précise ou un sujet précis, c'est-à-dire la tâche qui demande un vrai jugement sur le contenu du document, pas seulement une lecture de surface.
+
+La Bibliothèque du Musée d'Orsay (BM'O) se questionne sur cette question à une échelle différente de celle des grandes bibliothèques nationales généralistes. Elle possède une collection  spécialisée d'environ 50 000 notices, organisée  selon un système de cotation interne et non standardisé qu'on appellera par commodité la cote Orsay ou Clément. Le déménagement prévu pour 2027 vers un futur centre de ressources et de recherche change la politique de la bibliothèque pour une politique de libre accès pour le public. Une nécessité de changement de système de cotation est considérée, notamment de la cotation interne locale à la \textit{Library of Congress Classification}(LCC). 
+
+
+C'est ce projet de reclassification et la question de son automatisation par recours à un modèle de langage qui constitue le terrain d'étude de ce mémoire.
+
+ Dans quelles mesures les spécificités documentaires d'une bibliothèque patrimoniale spécialisée conditionnent-elles la possibilité d'automatiser la cotation Library of Congress et quelles limites imposent-elles à cette automatisation ? 
+
+L'hypothèse centrale de ce mémoire est qu'en restreignant le périmètre de classification proposé au modèle à ce que le fonds contient réellement, plutôt que de lui présenter l'intégralité du barème officiel, on facilite considérablement sa tâche. Cette hypothèse peut sembler contre-intuitive : on attendrait, \emph{a priori}, qu'un modèle soit d'autant plus juste qu'il a plus d'informations.
+
+
+Sur le plan de la recherche, ce mémoire nourrit une réflexion sur l'automatisation du catalogage dans un corpus spécialisé à une échelle réduite.  Ce cas pratique nous permet d'isoler une variable (celle de la taille du référentiel proposé au modèle). Cette étude propose, sur cette base, un premier jeu de résultats concrets sur ce terrain.
+
+
+
+Sur le plan professionnel, l'architecture de l'outil est proposée : un \emph{pipeline} au sens informatique, désignant une chaîne de traitement automatique composée de plusieurs étapes successives, chacune transformant ou enrichissant la donnée avant de la transmettre. Il suit une logique d'enrichissement de la donnée. Il  est mis à l'épreuve pour déterminer si ces enrichissements sont positifs ou négatifs, et dans quelle mesure les enrichissements aident le grand modèle de langage dans sa tâche de catalogage. 
+
+C'est un outil qui est adapté à des moyens limités, en recourant à un grand modèle de langage via un principe de \emph{prompting} qui ne nécessite pas de budget spécifique. Ainsi, ce travail interroge plus largement la manière dont une institution patrimoniale peut s'approprier un outil technique sans renoncer à ses spécificités documentaires et avec un budget financier limité.
+Ce mémoire s'organise en trois parties.
+
+
+La première dresse l'état de l'art nécessaire pour comprendre le terrain et les
+outils mobilisés~: le fonctionnement de la classification \textit{Library of
+Congress}, le langage d'indexation RAMEAU, les spécificités documentaires propres
+aux bibliothèques de musée, l'état de la recherche sur l'intelligence artificielle
+appliquée au catalogage, le cas de la \textit{Library of Congress} à travers son
+programme d'expérimentation interne, ainsi que les limites structurelles des
+grands modèles de langage.
+
+La deuxième présente la méthodologie retenue~: le terrain d'étude de la BM'O,
+l'architecture du pipeline développé, le cadre d'évaluation fondé sur la distance
+hiérarchique et le protocole des expérimentations menées.
+
+La troisième présente les résultats obtenus et offre une discussion à la lumière
+de la littérature sur le comportement des modèles de langage en tâche de
+classification, avant de proposer avec modération et prudence des modalités
+concrètes d'un \emph{workflow} associant l'outil et l'expertise humaine. 
+
+
+Un fonds patrimonial spécialisé comme celui de la BM'O ne couvre, en réalité, qu'une fraction restreinte de l'ensemble des catégories que compte la LCC : le reste du référentiel, conçu pour couvrir l'intégralité des savoirs, ne concerne tout simplement jamais ses collections. L'hypothèse centrale de ce mémoire est qu'en restreignant le périmètre de classification proposé au modèle à ce que le fonds contient réellement, plutôt que de lui présenter l'intégralité du barème officiel, on facilite considérablement sa tâche. Cette hypothèse peut sembler contre-intuitive : on attendrait \emph{a priori} qu'un modèle dispose d'autant plus de justesse qu'il reçoit d'informations. 
+
+L'intérêt de cette question, et des résultats qu'elle permet d'obtenir, se lit à deux niveaux. Sur le plan de la recherche, ce mémoire vient nourrir une réflexion encore jeune : une large part des travaux publiés jusqu'ici sur l'automatisation du catalogage porte sur des corpus généralistes, à très grande échelle (des millions de livres numériques, par exemple). Le cas d'un fonds patrimonial resserré et spécialisé comme celui de la BM'O reste, en comparaison, peu documenté ; son intérêt ne tient cependant pas qu'à cette rareté. Un fonds de cette taille permet d'isoler une variable, celle du référentiel proposé au modèle, que les expérimentations menées à l'échelle de collections généralistes ne peuvent pas aussi facilement contrôler : ce que les grandes bibliothèques nationales ne pouvaient pas mettre à l'épreuve aussi directement, un fonds spécialisé de 50~000 notices le permet. Cette étude propose, sur cette base, un premier jeu de résultats concrets sur ce terrain précis, sans prétendre combler à lui seul ce manque plus général. Sur le plan professionnel, ensuite, le \gls{pipeline} développé pour ce projet, ainsi que les enseignements tirés de sa mise à l'épreuve, offre un cas concret et documenté, dont certains éléments pourraient être repris par d'autres bibliothèques de musée ou fonds patrimoniaux spécialisés confrontés, un jour, à une problématique de reclassification comparable. Au-delà du seul cas de la BM'O, ce travail interroge plus largement la manière dont une institution patrimoniale peut s'approprier un outil technique sans renoncer à ses spécificités documentaires, un enjeu professionnel autant que technique.
+
+Pour répondre à cette question, ce mémoire s'organise en trois parties. 
+
+
+La première est pour comprendre le contexte : le fonctionnement de la classification \textit{Library of Congress}, le langage d'indexation français RAMEAU, les spécificités documentaires propres aux bibliothèques de musée, l'état de la recherche sur l'intelligence artificielle appliquée au catalogage, le cas de la \textit{Library of Congress} à travers son programme d'expérimentation interne, et les principes techniques et les limites structurelles des grands modèles de langage. 
+La deuxième partie présente la méthodologie utilisée dans ce mémoire : le terrain d'étude de la BM'O, l'architecture du \textit{pipeline} développé, le cadre d'évaluation et le protocole des tests menés.
+
+La troisième partie présente les résultats obtenus et une  discussion sur le comportement des modèles de langage en tâche de classification.
+
+

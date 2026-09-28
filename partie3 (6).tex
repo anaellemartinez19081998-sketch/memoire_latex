@@ -1,0 +1,477 @@
+% !TEX root = memoire.tex
+% !BIB program = biber
+
+\chapter{Résultats, discussion et proposition de workflow}
+\label{chap:partie3}
+
+
+\section{Résultats}
+\label{sec:resultats}
+
+\subsection{Généralisation multi-classes}
+\label{sec:generalisation-multiclasses}
+
+\subsubsection*{Score global}
+\label{sec:score-global}
+
+Pour un corpus de $n = 201$ notices, en configuration standard (\gls{rameau} activé, plan de la bibliothèque du musée d'Orsay (BM'O) réduit, exemples \gls{inha}), le \textit{pipeline} atteint un score micro-moyen de 2,394/4 et un taux d'exact-match de 59,2~\% sur les sous-classes. Ces chiffres, comme l'ensemble de ceux présentés dans ce chapitre, sont mesurés sur le corpus de substitution INHA et sa politique de cotation propre (Partie 2, §\ref{sec:absence-verite-terrain}) ; ils caractérisent le comportement du \textit{pipeline} sur ce banc d'essai, pas une performance mesurée sur le fonds réel de la BM'O.
+
+Le score micro-moyen est calculé sur l'ensemble des notices prises individuellement, ce qui le rapproche mécaniquement de la performance des classes les plus peuplées ; le score macro-moyen, à l'inverse, est la moyenne des scores par classe, indépendamment de son effectif. Le score macro-moyen s'établit à 2,309/4. Cet écart entre score micro et macro s'explique par une forte hétérogénéité de la performance selon les classes.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrl}
+\toprule
+\textbf{Grande classe} & \textbf{$n$} & \textbf{Score moyen (/4)} & \textbf{Exact-match} & \textbf{IC 95~\%} \\
+\midrule
+NK (Arts décoratifs)        & 27 & 3,46 & 85,2~\% & [2,92 ;~3,91] \\
+AM (Musées, collections)    & 43 & 3,26 & 81,4~\% & [2,79 ;~3,72] \\
+NX (Arts, généralités)      & 15 & 2,40 & 60,0~\% & [1,33 ;~3,47] \\
+NA (Architecture)           & 33 & 2,30 & 57,6~\% & [1,58 ;~2,91] \\
+N (Beaux-arts, généralités) & 55 & 1,38 & 34,5~\% & [0,87 ;~1,89] \\
+\bottomrule
+\end{tabular}
+\caption{Score par grande classe, configuration standard ($n \geq 10$, intervalle de confiance \textit{bootstrap}  à 95~\%)}
+\label{tab:score-grande-classe}
+\end{table}
+
+L'écart entre classes est net et se maintient sur l'ensemble des expérimentations menées dans ce chapitre~: NK et AM dépassent 80~\% d'exact-match, tandis que N plafonne à 34,5~\%. Cette dernière est aussi la classe la plus peuplée du corpus, avec un effectif de 55 notices, ce qui pèse fortement sur le score micro-moyen. Les causes de cette hétérogénéité : sensibilité au plan de cotation, effet de la priorisation RAMEAU, effet d'attracteur propre à certaines classes, sont examinées successivement dans les sections qui suivent (\S\ref{sec:effet-plan-reduit}, \S\ref{sec:effet-rameau}, \S\ref{sec:taxonomie-erreurs}).
+
+\subsection{Distribution du score continu}
+\label{sec:distribution-score}
+
+Le score de proximité utilisé dans ce mémoire est continu, gradué de 0 à 4 selon la distance au plus proche ancêtre commun dans le barème. Cette granularité avait pour but de distinguer, parmi les erreurs, celles qui restent proches de la sous-classe attendue de celles qui en sont très éloignées.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lc}
+\toprule
+\textbf{Tranche de score} & \textbf{Part des notices} \\
+\midrule
+0 (aucun ancêtre commun) & 39,8~\% \\
+]0 -- 1] éloigné & 0,0~\% \\
+]1 -- 2] proche & 0,5~\% \\
+]2 -- 3] très proche & 0,0~\% \\
+]3 -- 4] quasi exact / exact & 59,7~\% \\
+\bottomrule
+\end{tabular}
+\caption{Distribution du score de proximité, configuration standard (n = 201)}
+\label{tab:distribution-score}
+\end{table}
+
+Dans les faits, cette gradation se révèle peu exploitée par les résultats obtenus. La distribution est fortement bimodale~: 39,8~\% des notices obtiennent un score nul et 59,7~\% un score quasi exact ou exact, tandis que les tranches intermédiaires représentent ensemble moins de 1~\% du corpus. Le modèle ne s'approche donc que très rarement de la bonne réponse sans l'atteindre~: soit il identifie directement la sous-classe attendue ou une sous-classe très proche, soit il en propose une sans lien hiérarchique avec elle.
+
+Cette bimodalité a deux conséquences pour la lecture de ce chapitre. D'une part, le score continu et le taux d'exact-match mesurent, sur ce corpus, presque la même chose. D'autre part, elle rend difficile de distinguer ce qui relève du comportement du modèle et ce qui relève de la granularité du barème utilisé pour la mesure, une question discutée en \S\ref{sec:limites}.
+
+
+
+
+\subsection{Effet du plan de cotation}
+\label{sec:effet-plan-reduit}
+
+\subsubsection*{Hypothèse et protocole}
+
+L'un des tests les plus importants de ce corpus est celui de l'effet de la taille du plan de cotation. Dans ce test, on observe les conséquences des restrictions de l'espace des sous-classes proposées au \gls{llm}.
+
+On compare les résultats obtenus avec le plan de cotation restreint par la bibliothèque du musée d'Orsay et le barème officiel LCC complet extrait des \textit{schedule} de la \textit{Library of Congress}. La différence est de plusieurs milliers d'entrées par classe pour le barème officiel, contre quelques dizaines pour le plan réduit.
+Sur les 201 notices de corpus, on a deux conditions de comparaison qui ont été testées en ce qu'on va appeler configuration standard avec les enrichissements RAMEAU et \textit{few-shot}. 
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccl}
+\toprule
+\textbf{Condition} & \textbf{Score moyen} & \textbf{Exact-match} & \textbf{p (Wilcoxon)} \\
+\midrule
+Plan réduit, config. standard & 2,394 & 59,2~\% & \multirow{2}{*}{0,038} \\
+Plan officiel, config. standard & 1,917 & 45,3~\% & \\
+\midrule
+Plan réduit, few-shot désactivé & 2,673 & 66,2~\% & \multirow{2}{*}{$1,6\times10^{-5}$ \textbf{(Bonferroni)}} \\
+Plan officiel, \textit{few-shot} désactivé & 1,823 & 43,3~\% & \\
+\bottomrule
+\end{tabular}
+\caption{Effet du plan de cotation, sous deux conditions de \textit{few-shot} (n = 201)}
+\label{tab:plan-reduit-officiel}
+\end{table}
+
+Dans cette configuration standard, on obtient un résultat de 64 notices qui obtiennent un meilleur score avec le plan restreint de la bibliothèque du musée d'Orsay, contre 37 qui se dégradent et 100 qui restent inchangées. Le solde net est donc positif, soit un solde net positif de 27 notices en faveur du plan réduit, donc 13,4\% du corpus.
+
+On utilise un test statistique pour vérifier la significativité des résultats, le test de \gls{wilcoxon}. 
+Ce test confirme la significativité de cet écart. Pour lire ce test, le p doit être inférieur à 0,05.
+
+
+Lorsque le \textit{few-shot} est désactivé, la même comparaison donne un écart plus large et plus observable. 71 notices vont s'améliorer sous le plan réduit contre 26 qui se dégradent et 104 sont inchangées, soit un solde net de 45 notices.
+Le score net passe de 2,673 sur le plan réduit à 1,823 sur le plan officiel, un gain de 0,850 point, et l'exact match passe de 66,2\% sous le plan réduit à 43,3\% sous plan officiel et donc une chute de 22,9 points.
+
+On peut conclure que dans ces conditions, le plan réduit obtient une meilleure performance que le plan officiel dans la majorité des classes du corpus avec un écart plus marqué en l'absence du \textit{few-shot}. 64 notices améliorées contre 37 en configuration standard et 71 contre 26 en \textit{few-shot} désactivé.
+
+Cette tendance n'est pas universelle. On observe une tendance différente dans les résultats de la classe N.
+
+\subsubsection*{Hétérogénéité par grande classe}
+
+L'effet de cette tendance n'est pas homogène et, dans certains cas, sa direction s'inverse.
+Le tableau ci-dessous détaille les scores moyens obtenus pour chaque plan pour les classes dont l'effectif dépasse 7 notices, c'est-à-dire 180 sur 201 notices du corpus, et les 21 restantes sont un peu trop peu représentées pour un score fiable. Ces échantillons sont d'effectifs réduits.
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Grande classe} & \textbf{n} & \textbf{Plan réduit} &
+\textbf{Plan officiel} & \textbf{Écart [IC 95\,\%]} \\
+\midrule
+NK (Arts décoratifs)          & 27 & 3,46 & 0,68 & $+2{,}78$ $[+2{,}17\,;\,+3{,}32]$ \\
+AM (Musées, collections)      & 43 & 3,26 & 1,95 & $+1{,}31$ $[+0{,}56\,;\,+2{,}05]$ \\
+NX (Arts, généralités)        & 15 & 2,40 & 1,67 & $+0{,}73$ $[-0{,}80\,;\,+2{,}33]$ \\
+ND (Peinture)                 &  7 & 2,83 & 2,26 & $+0{,}57$ $[-1{,}14\,;\,+2{,}29]$ \\
+NA (Architecture)             & 33 & 2,30 & 2,37 & $-0{,}07$ $[-0{,}85\,;\,+0{,}73]$ \\
+N  (Beaux-arts, généralités)  & 55 & 1,38 & 2,25 & $-0{,}87$ $[-1{,}45\,;\,-0{,}29]$ \\
+\bottomrule
+\end{tabular}
+\caption{Score moyen par grande classe, plan réduit vs plan officiel.}
+\label{tab:plan-par-classe}
+\end{table}
+
+On va utiliser un intervalle de confiance à 95\% par \textit{bootstrap}.Avec ces résultats, on observe que deux classes bénéficient du plan réduit de façon statistiquement établie : la classe NK (Arts décoratifs) + 69\% du score maximal et AM (Musées, collections) + 32\%. Ce sont les deux classes qui sont les plus impactées par la réduction du plan.
+
+Deux autres classes ont un effectif plus restreint qui ne permet pas de conclure à un effet statistiquement établi, mais suggère un effet favorable au plan réduit : NX (Arts, généralités, +18\%) et ND (Peinture + 14\%).
+
+Deux classes vont faire exception : NA (Architecture) reste stable entre les deux plans et la classe N (Beaux-arts, généralités) a un résultat inverse et significatif. Elle obtient un meilleur score avec le plan officiel, soit un écart de 21,8\% en faveur de celui-ci.
+Une hypothèse de cette différence est celle de l'effet d'attraction sur une plage du plan réduit mal définie pour cette classe.
+
+\subsubsection*{Exemple qualitatif}
+
+Pour la notice \emph{Costume}, par Louise Alcan et Michèle Margerie (cote réelle \texttt{AM48.P37~T73~1983}), le plan réduit guide correctement le modèle vers la tranche \texttt{AM10-100} (\textit{By country}, score~4). Le plan officiel complet propose \texttt{AM349}, une cote qui relève de la sous-section \textit{Collectors and collecting} (\texttt{AM200-501}) dédiée aux collectionneurs privés et à leurs pratiques plutôt que de la sous-section \textit{By country} (\texttt{AM10-100}) qui décrit les musées nationaux et leurs collections. Ce choix aboutit à un score nul. C'est un exemple de dispersion du modèle dans un espace de réponses nettement plus large.
+
+\subsection{Effet de la priorisation RAMEAU}
+\label{sec:effet-rameau}
+
+Ce test a pour but de quantifier l'apport de la consigne LLM de prioriser les vedettes RAMEAU de la notice plutôt que le titre pour déterminer la sous-classe, dans la logique où le titre peut être trompeur.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccl}
+\toprule
+& \textbf{Score moyen} & \textbf{Exact-match} & \textbf{p (Wilcoxon)} \\
+\midrule
+RAMEAU activé, plan réduit & 2,394 & 59,2~\% & \multirow{2}{*}{0,0035 \textbf{(Bonferroni)}} \\
+RAMEAU désactivé, plan réduit & 2,076 & 51,2~\% & \\
+\midrule
+RAMEAU activé, plan complet & 1,917 & 45,3~\% & \multirow{2}{*}{0,238} \\
+RAMEAU désactivé, plan complet & 1,791 & 41,8~\% & \\
+\bottomrule
+\end{tabular}
+\caption{Effet de la priorisation RAMEAU, sous les deux plans (n = 201)}
+\label{tab:rameau-on-off}
+\end{table}
+
+
+On observe que la priorisation des sujets RAMEAU sur le titre améliore significativement les résultats sous plan réduit. On a une amélioration de 8\% du score maximal. C'est l'un des deux seuls effets de ce mémoire à résister à la correction de Bonferroni.
+
+Sous plan officiel, cet effet s'atténue fortement et perd sa significativité. On obtient seulement un gain de 3,2\%.
+
+Ces résultats montrent que l'ajout de l'importance des sujets RAMEAU dépend de la taille de l'espace des réponses. Elles semblent plus utiles lorsque le modèle dispose de moins d'informations et d'un espace restreint et se dilue face à la difficulté générale de navigation du LLM dans un espace de plusieurs milliers d'options.
+
+\subsubsection*{Hétérogénéité par grande classe}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Grande classe} & \textbf{n} & \textbf{Écart moyen} & \textbf{IC 95\%} & \textbf{Robuste ?} \\
+\midrule
+N (Beaux-arts, généralités) & 55 & $+0{,}44$ & [$+0{,}15$ ; $+0{,}80$] & \textbf{Oui} \\
+NK (Arts décoratifs) & 27 & $+0{,}44$ & [$0{,}00$ ; $+0{,}89$] & Non \\
+NX (Arts, généralités) & 15 & $+0{,}27$ & [$0{,}00$ ; $+0{,}80$] & Non \\
+AM (Musées, collections) & 43 & $+0{,}09$ & [$-0{,}56$ ; $+0{,}74$] & Non \\
+NA (Architecture) & 33 & $+0{,}00$ & [$-0{,}36$ ; $+0{,}36$] & Non \\
+\bottomrule
+\end{tabular}
+\caption{Écart de score RAMEAU on/off par grande classe, IC bootstrap 95\% (plan réduit)}
+\label{tab:rameau-par-classe}
+\end{table}
+
+C'est la classe N, et non une classe à meilleure performance globale, qui porte l'essentiel de l'effet RAMEAU mesuré au niveau global~: c'est la seule classe dont l'intervalle de confiance ne contient pas zéro. Pour NK, NX, AM et NA, les intervalles incluent zéro et ne permettent pas d'établir un effet propre à ces classes sur cet échantillon. RAMEAU pourrait ainsi agir, sur la classe la plus difficile du corpus, comme un signal suffisamment spécifique pour contrer le repli par défaut du modèle vers sa zone d'attraction.
+
+\subsection{Effet du few-shot}
+\label{sec:effet-fewshot}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccl}
+\toprule
+& \textbf{Score moyen} & \textbf{Exact-match} & \textbf{p (Wilcoxon)} \\
+\midrule
+Few-shot activé, plan réduit & 2,394 & 59,2~\% & \multirow{2}{*}{0,027} \\
+Few-shot désactivé, plan réduit & 2,673 & 66,2~\% & \\
+\midrule
+Few-shot activé, plan complet & 1,917 & 45,3~\% & \multirow{2}{*}{0,376} \\
+Few-shot désactivé, plan complet & 1,823 & 43,3~\% & \\
+\bottomrule
+\end{tabular}
+\caption{Effet du few-shot, sous les deux plans (n = 201)}
+\label{tab:fewshot-on-off}
+\end{table}
+
+Contrairement à l'hypothèse initiale de ce mémoire, ajouter des exemples \textit{few-shot} au prompt \textbf{dégrade} les résultats sous plan réduit~: les retirer améliore le score plutôt que de le détériorer ($-0{,}279$, $p=0{,}027$). \textbf{La meilleure configuration mesurée dans ce mémoire, toutes conditions confondues, est donc le plan réduit sans few-shot} (2,673, 66,2~\% d'exact-match), et non le plan réduit avec few-shot activé. Sous plan officiel complet, l'effet s'inverse et redevient légèrement positif, sans significativité ($+0{,}094$, $p=0{,}376$)~: lorsque l'espace de réponses est déjà restreint et pertinent, les exemples n'apportent pas d'information supplémentaire utile et semblent détourner le modèle d'un raisonnement direct à partir du plan fourni.
+
+\subsection{Effet du pool \textit{few-shot} élargi}
+\label{sec:effet-pool-elargi}
+
+Le pool \textit{few-shot} original ne compte que 26 notices de référence. Un corpus élargi à 94 notices, constitué à partir de notices INHA non utilisées, a été testé pour vérifier si cet effectif restreint limitait l'effet de guidage du modèle.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccl}
+\toprule
+& \textbf{Score moyen} & \textbf{Exact-match} & \textbf{p (Wilcoxon)} \\
+\midrule
+Pool original (26), plan réduit & 2,394 & 59,2~\% & \multirow{2}{*}{0,354} \\
+Pool élargi (94), plan réduit   & 2,534 & 62,7~\% & \\
+\midrule
+Pool original (26), plan complet & 1,917 & 45,3~\% & \multirow{2}{*}{0,014} \\
+Pool élargi (94), plan complet   & 2,369 & 58,2~\% & \\
+\bottomrule
+\end{tabular}
+\caption{Score moyen selon la taille du pool few-shot, sous les deux plans (n = 201)}
+\label{tab:fewshot-pool}
+\end{table}
+
+L'effet du corpus élargi est asymétrique selon le plan de cotation~: sous plan réduit, le gain reste modeste et non significatif ($+0{,}139$, $p=0{,}354$) ; sous plan complet, il devient net ($+0{,}451$, $p=0{,}014$, significatif mais non robuste au seuil de Bonferroni).
+
+Toutefois, ces résultats doivent prendre en compte l'hétérogénéité des classes. Pour la classe NX, le score se dégrade avec le corpus élargi~: il passe de 2,40 (corpus original) à 1,87 (corpus élargi) sous plan réduit, l'exact-match chutant de 60,0~\% à 46,7~\%.
+
+Le corpus élargi comptant une forte proportion de notices de la classe N (majoritaire dans le corpus source) contre très peu de notices NX, cette composition déséquilibrée tend à réintroduire, pour les classes minoritaires du pool, un biais de représentation hérité du corpus dont il est issu.
+
+Une amélioration future de la méthode few-shot serait de privilégier un élargissement homogène, avec des exemples pour toutes les classes.
+
+\subsection{Taxonomie des erreurs}
+\label{sec:taxonomie-erreurs}
+
+\subsubsection*{Une attraction vers une cote mal différenciée}
+
+Une observation plus poussée sur les prédictions de la classe N révèle qu'une part importante des notices se voient attribuer exactement la même cote \texttt{N7560-8266}, indépendamment du sujet réel, y compris pour des ouvrages portant le terme baroque  dans leur titre (qui devraient relever de \texttt{N6415.B3}). Cette cote correspond, dans le plan réduit BM'O, à une entrée unique regroupant les sujets spéciaux de l'art, alors qu'elle est subdivisée en plusieurs dizaines d'entrées distinctes dans le plan officiel complet.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\toprule
+& \textbf{Notices recevant} & \textbf{Part} & \textbf{Score moyen} \\
+& \textbf{la cote \texttt{N7560-8266}} & \textbf{(/55)} & \textbf{(/4)} \\
+\midrule
+Plan réduit (BM'O)      & 20/55 & 36,4~\% & 1,38 \\
+Plan officiel (complet) & 0/55  & 0,0~\%  & 2,25 \\
+\bottomrule
+\end{tabular}
+\caption{Disparition du repli sous le plan officiel (n = 55)}
+\label{tab:attraction-plan-reduit-officiel}
+\end{table}
+
+Sous plan complet, la cote \texttt{N7560-8266} n'est plus une entrée unique et se divise en plusieurs dizaines de sous-groupes. Quand le modèle est contraint de choisir parmi ces sous-classes, le repli sur une cote identique disparaît entièrement~: aucune notice de la classe N ne reçoit plus la cote exacte \texttt{N7560-8266}, contre 20 sur 55 sous plan réduit. Le phénomène n'est donc pas seulement atténué, il est structurellement impossible dans cette configuration.
+
+Sous plan officiel, les prédictions erronées se dispersent sur un grand nombre de cotes distinctes (N6447, N7429, N8001, N68...) plutôt que de converger vers une même cote par défaut. Cette dispersion, bien qu'elle empêche toujours d'identifier la bonne sous-classe dans la majorité des cas, produit néanmoins un score de proximité globalement meilleur pour cette classe~: les cotes proposées, bien que fausses, tendent à rester plus proches thématiquement de la cote attendue qu'un repli systématique vers une même cote par défaut.
+
+\subsubsection*{Un phénomène à plusieurs classes}
+
+Ce repli ne concerne pas la seule classe N. Une analyse des erreurs par préfixe de cote prédite, menée sur la configuration de référence, montre que la classe AM présente un attracteur propre et plus concentré encore~: sur ses 8 erreurs, 7 convergent vers la tranche \texttt{AM111} (\textit{Museum studies. Museum methods}), une rubrique méthodologique générale, plutôt que vers la sous-classe géographique attendue. Les classes NX et NK présentent le même phénomène à plus petite échelle, sur des effectifs trop réduits pour en tirer une conclusion ferme (respectivement 3 erreurs sur 6 vers \texttt{NX650}, et 2 sur 4 vers \texttt{NK4700}).
+
+\subsection{Limites}
+\label{sec:limites}
+
+Plusieurs limites méthodologiques doivent être assumées avant toute généralisation des résultats présentés dans ce chapitre.
+
+\subsubsection*{Comparaisons multiples}
+
+Plusieurs comparaisons appariées ont été menées dans ce mémoire. Seules deux résistent à la correction de Bonferroni ($\alpha \approx 0{,}0042$)~: l'effet du plan de cotation en l'absence de \textit{few-shot} et l'effet de RAMEAU sous plan réduit. Ce choix de correction est strict, a pour but de protéger contre les faux positifs au prix d'une possible sous-détection d'effets réels plus modestes~; les effets significatifs au seul seuil nominal de 0,05 doivent donc être lus comme des tendances plutôt que comme des résultats établis.
+
+\subsubsection*{Granularité du barème utilisé pour le score}
+
+Le score de proximité s'appuie sur les \textit{outlines} officiels de la Library of Congress, une version condensée des \textit{schedules} complets qui ne conserve que 497 préfixes de premier niveau. Les niveaux intermédiaires de classification (les regroupements continentaux au sein d'une subdivision par pays, par exemple) y sont absents~: lorsque le modèle propose une sous-classe sémantiquement proche de la référence mais que le barème ne contient pas le nœud qui les aurait réunies, le plus proche ancêtre commun identifié est la racine de la grande classe, et le score tombe à zéro. 
+
+Ce biais ne compromet pas la validité résultats entre chaque catégories, mais on obtient juste une perte de résolution qui se situe au niveau de la finesse des nœuds intermédiaires.
+
+\subsubsection*{Corpus d'évaluation et reproductibilité}
+
+L'évaluation porte sur 201 notices issues du corpus INHA, après restriction au périmètre BM'O. Les classes dominantes (N, AM, NA) pèsent lourd dans les moyennes micro, et les classes à faible effectif présentent des intervalles de confiance larges. 
+
+Les conclusions ne sont donc pas directement transposables à d'autres classes LCC, à d'autres fonds, ou à des corpus non francophones. Le niveau 1 de la cascade (appariement ISBN) ayant été désactivé pour forcer l'engagement du LLM sur la sous-classe, les performances rapportées ici surestiment par ailleurs la difficulté réelle de la tâche par rapport à un déploiement complet.
+
+
+\subsection*{Synthèse~: une physionomie propre à chaque grande classe}
+
+Les expérimentations menées mettent en évidence que chaque grande classe du corpus répond différemment aux leviers testés, plutôt qu'un effet uniforme applicable à l'ensemble du périmètre BM'O.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Classe} & \textbf{Sensibilité dominante observée} \\
+\midrule
+NK & Très sensible au plan de cotation ($+2{,}78$ sur 4, \S\ref{sec:effet-plan-reduit}) \\
+AM & Sensible au plan de cotation ($+1{,}31$, \S\ref{sec:effet-plan-reduit}) ; \\
+   & attracteur propre sur \texttt{AM111} \\
+N  & un repli sur la cote exacte \texttt{N7560-8266} (20/55 sous plan réduit, \\
+   & \S\ref{sec:taxonomie-erreurs}) ; seule classe où RAMEAU est robuste \\
+NX & Sensible à la composition du pool few-shot (\S\ref{sec:effet-fewshot}) \\
+NA & Comportement stable entre les deux plans (écart non significatif, \S\ref{sec:effet-plan-reduit}) \\
+\bottomrule
+\end{tabular}
+\caption{Synthèse des sensibilités propres à chaque grande classe
+(effectif supérieur à 7).}
+\label{tab:synthese-classes}
+\end{table}
+
+Cette hétérogénéité des résultats invite à des ajustements différenciés selon la classe traitée. Chaque classe se comporte de façon différente selon leurs spécificités. Deux profils se dégagent. D'un côté, les classes dont la performance dépend surtout du plan de cotation fourni au modèle (NK, AM), où la réduction manuelle du plan produit un gain statistiquement robuste. De l'autre, les classes dont l'échec relève  du comportement de repli du modèle lui-même (N, NX), où un travail sur la description des sous-classes attractives serait plus utile.
+
+Les sections suivantes reviennent sur ces résultats à la lumière de la littérature sur le comportement des modèles de langage en tâche de classification (\S\ref{sec:discussion-litterature}), avant de proposer les modalités concrètes d'un \textit{workflow} associant proposition automatique et vérification humaine (\S\ref{sec:workflow}).
+
+
+
+
+
+
+
+
+\section{Discussion}
+\label{sec:discussion-litterature}
+
+\subsection{Cadrage}
+Précédemment, nous avons établi une typologie empirique des erreurs observées dans le \textit{pipeline}~: des erreurs de subdivision, des sujets trop larges ou trop étroits, des sujets RAMEAU mal exploités, des sous-classes hiérarchiquement incohérentes ou encore des sous-classes attractives. Cette typologie a été construite par observation directe du corpus. Mais cela reste descriptif et documente ce qui s'est produit sans en expliquer le pourquoi.
+
+La littérature récente sur le comportement des modèles de langage en tâche de classification permet d'éclairer plusieurs phénomènes récurrents, indépendants du domaine d'application, et de resituer nos observations dans un cadre explicatif plus large. Cette section propose une mise en regard de nos propres résultats avec cette littérature, pour déterminer si les erreurs observées relèvent de limites des LLM en contexte de classification déjà documentées, ou de spécificités propres au contexte de notre étude. Cette analyse permettra d'orienter des pistes de correction ou d'exploration future.
+
+
+
+
+
+
+
+
+
+\subsubsection*{Spécialisation documentaire et effet de longue traîne}
+
+Un constat plus général mérite d'être posé avant d'examiner les phénomènes propres au comportement des modèles de langage dans les tâches de classification.
+
+Les modèles de langage sont entraînés sur d'immenses corpus du web où la qualité des données est hétérogène. Certains domaines de connaissances sont mieux représentés que d'autres. On parle d'effet de « longue traîne » lorsqu'un domaine occupe une place marginale dans un corpus d'entraînement général, alors qu'il peut être parfaitement structuré et central dans son propre contexte d'usage professionnel.
+
+La littérature confirme que les grands modèles de langage perdent en fiabilité quand ils sont confrontés à des domaines spécialisés sous-représentés dans leur jeu d'entraînement\footcite{kandpal2023}. C'est le cas par exemple des sciences physiques ou biomédicales, où le vocabulaire est éloigné de l'usage courant du web. Un travail de synthèse récent sur cette question précise qu'un fait peut être considéré comme rare à l'échelle d'un corpus web général, tout en étant fondamental et central à l'intérieur d'un domaine spécialisé donné\footcite{badhe2026}, comme la biologie moléculaire ou la science de l'information.
+
+Ce cadre général s'applique directement à notre terrain d'étude. La bibliothèque patrimoniale du musée d'Orsay étant une bibliothèque spécialisée, son fonds est tout aussi spécialisé~: arts décoratifs, histoire de l'art du XIX\textsuperscript{e} siècle, muséologie. À l'échelle d'un corpus web généraliste, ces classes occupent une place marginale.
+
+Il existe donc d'emblée, dans le modèle de langage et son entraînement, un déséquilibre structurel entre l'importance des classes dans le contexte documentaire local et le poids réel de ces données sur lesquelles le modèle va raisonner. Les erreurs observées ne relèvent donc pas seulement d'un dysfonctionnement du modèle, mais d'un différentiel de représentation entre la fréquence d'une notion dans l'apprentissage du modèle et son importance réelle dans le contexte visé.
+
+\subsubsection*{Difficulté intrinsèque et hétérogénéité des classes}
+
+L'écart de performance entre classes cibles (85,2~\% d'exact-match pour NK, 81,4~\% pour AM, contre seulement 34,5~\% pour N) reflète une difficulté intrinsèque variable selon la classe, plutôt qu'un effet de fréquence uniforme. N est la classe la plus hétérogène du corpus: elle couvre des sujets aussi divers que l'esthétique générale, l'iconographie religieuse, l'histoire de l'art par pays et par période, ou encore les thèmes et motifs. Le modèle doit distinguer, à l'intérieur d'une même grande classe, des dizaines de sous-espaces sémantiquement éloignés.
+
+NK (arts décoratifs) et AM (musées, collections) sont, à l'inverse, des domaines plus spécifiques, où les sous-classes sont plus nettement délimitées et où un sujet donné a peu d'alternatives. Cette homogénéité réduit l'ambiguïté propre à la tâche de classification, indépendamment de tout effet de fréquence dans les données d'entraînement du modèle.
+
+
+\subsubsection*{Un biais de fréquence au niveau des sous-classes}
+
+La grande classe étant imposée dans notre dispositif dans le but de se focaliser sur la sous classe (via la Cote Orsay, ou la référence du corpus d'évaluation), le LLM ne choisit jamais entre N, NK et AM~: il ne peut donc, à ce niveau, manifester de préférence pour une classe plus fréquente qu'une autre. Le biais de classe majoritaire (\textit{majority label bias}), qui désigne la tendance des modèles à sur-prédire les classes les plus fréquemment représentées dans leurs données d'entraînement indépendamment du contenu réel du document\footcite{zhao2021}, ne peut donc pas s'appliquer à l'écart d'exact-match entre grandes classes discuté ci-dessus.
+
+On peut cependant quand même l’observer au niveau des \emph{sous-classes}. Le repli systématique vers certaines sous-classes génériques du plan (\texttt{N7560-8266} pour la classe N, \texttt{AM111} pour AM, \S\ref{sec:taxonomie-erreurs}) peut se lire comme une manifestation, à ce niveau, du même phénomène~: en situation d'incertitude, le modèle se replie sur les rubriques les plus fréquemment rencontrées dans ses données d'entraînement plutôt que sur une analyse propre à chaque notice. \texttt{N7560} (\textit{Choice of subject. Titles. Themes and motives}) et \texttt{N8266} (\textit{Special subjects of art}) sont des rubriques-cadres génériques, présentes dans la quasi-totalité des catalogues d'art et donc probablement surreprésentées, dans les corpus d'entraînement généralistes par rapport aux sous-classes thématiques plus spécifiques. Ces zones sont donc des zones de replis en cas d'incertitude du modèle de langage.  
+
+
+Ce biais n'est cependant pas insensible au contexte~: le repli sur la cote exacte \texttt{N7560-8266} disparaît entièrement (20/55 sous plan réduit, 0/55 sous plan complet) dès lors que le plan proposé au modèle subdivise suffisamment cette zone (\S\ref{sec:taxonomie-erreurs}). Le \textit{majority label bias}, dans ce cas précis, tiendrait donc autant à la pauvreté du contexte fourni qu'à une préférence intrinsèque et irréductible du modèle. Trancher plus avant entre ces deux composantes supposerait de croiser nos résultats avec une estimation de la fréquence relative de chaque sous-classe LC dans les corpus généralistes qui entraînent les LLM. Une piste qui dépasse le cadre de ce travail.
+
+\subsubsection*{Incohérence hiérarchique et taille de l'espace des classes}
+
+Un autre phénomène documenté, notamment en classification visuelle hiérarchique, porte sur la difficulté des modèles de langage à maintenir une cohérence de prédiction à travers différents niveaux structurés. Une étude récente montre que même des modèles multimodaux de grande taille commettent des erreurs sur au moins deux tiers des chemins hiérarchiques testés selon les auteurs, un déficit qu'ils qualifient de goulot d'étranglement (\textit{bottleneck}), propre à la composante linguistique du modèle\footcite{bottleneck2026}.
+
+Ce cadre éclaire nos résultats, mais de façon plus nuancée qu'une lecture au seul niveau global ne le suggérerait. L'effet du plan de cotation, le plus robuste de ce mémoire, ne joue pas dans le même sens pour toutes les classes (\S\ref{sec:effet-plan-reduit}, tableau~\ref{tab:plan-par-classe})~: NK, AM, NX et ND bénéficient nettement du plan réduit, tandis que N obtient de meilleurs résultats avec le plan officiel complet. Le plan complet est un plan qui compte, pour ces deux classes, plusieurs milliers d'entrées chacune (2~106 pour NK, 1~603 pour N) une fois le texte intégral des \textit{schedules} substitué au résumé initialement mobilisé. Un travail sur la réduction du nombre de classes candidates présentées à un modèle de langage (\textit{Label Space Reduction}) confirme qu'un effet de taille de l'espace des classes existe bien en général\footcite{vandemoortele2025}, mais nos résultats montrent que cet effet peut s'inverser lorsque le plan réduit propose, pour une classe donnée, une granularité insuffisante~: réduire l'espace de réponses n'aide que si les options retenues restent suffisamment différenciées pour guider le modèle, faute de quoi le retrait d'options peut favoriser un repli par défaut plutôt qu'un raisonnement affiné (\S\ref{sec:taxonomie-erreurs}).
+
+Un phénomène proche, dit \textit{lost in the middle}, désigne la tendance d'un modèle à moins bien exploiter les informations situées au centre d'une longue liste fournie en contexte\footcite{liu2023}. Ce mécanisme rendrait compte de la dispersion des erreurs observée sous plan complet pour les classes au plan le plus volumineux, mais nous ne l'avons pas testé isolément dans ce mémoire. Ce résultat invite en tout cas à nuancer l'interprétation d'une réduction de taille bénéfique en tant que telle~: ce n'est pas la taille de l'espace de classes qui détermine, seule, l'effet mesuré, mais la rencontre entre cette taille et la pertinence sémantique du sous-ensemble retenu pour la classe concernée.
+
+\subsubsection*{Erreurs d'exhaustivité et de spécificité}
+
+Un axe de lecture complémentaire, au-delà de l'usage des modèles de langage, provient des sources d'information sur l'indexation automatique. Une étude propose une classification des erreurs d'indexation humaine ou automatique organisée selon deux axes~: l'exhaustivité (un nombre de sujets assignés trop élevé ou trop faible au regard de la politique d'indexation en vigueur) et la spécificité (un sujet assigné qui n'est pas assez spécifique ou ne se situe pas au niveau de granularité approprié)\footcite{golub2021}.
+
+Cette typologie recoupe des catégories de retours documentées par ailleurs dans des expérimentations comparables, où les sujets sont catégorisés comme \textit{too broad} ou \textit{too narrow}, ainsi que, dans une moindre mesure, nos propres observations sur l'hétérogénéité de l'apport de RAMEAU selon les classes (\S\ref{sec:effet-rameau}). L'intérêt de ce rapprochement est de recadrer nos erreurs de spécificité~: elles ne sont pas seulement propres aux modèles de langage, mais témoignent de la persistance, sous une nouvelle forme, de la difficulté structurelle de la tâche d'indexation elle-même.
+
+\subsubsection*{Connaissance catalographique générale vs application systématique des règles de politique locale}
+
+Le phénomène le plus similaire à notre corpus provient d'un travail récent sur l'indexation LCSH par des LLM au moyen d'un \textit{pipeline} agentique structuré en compétences, qui reproduit les étapes d'un raisonnement catalographique~: détermination de l'\textit{aboutness} du document, puis filtrage quantitatif selon les règles \textit{Subject Headings Manual}\footcite{chow2026}. Ce travail observe que les modèles testés internalisent des données catalographiques générales issues de leur entraînement, sans parvenir à appliquer des règles de politique spécifique non explicitement codées dans le \textit{pipeline}.
+
+Cette observation rejoint le champ des conflits de connaissances (\textit{knowledge conflicts})~: un conflit survient lorsqu'une information fournie dans le contexte du modèle entre en tension avec sa connaissance interne. Les travaux de synthèse sur ce phénomène observent que les modèles privilégient leur connaissance interne par défaut lorsque le contexte fourni est peu spécifique ou ambigu, et s'appuient davantage sur ce contexte lorsqu'il est pertinent et non ambigu\footcite{xu2024}.
+
+On peut supposer que le modèle Mistral dispose d'une connaissance générale relativement solide du système \textit{Library of Congress Classification}, documenté, stable et largement représenté dans des corpus d'entraînement généralistes. C’est une hypothèse plausible au vu de ces résultats, mais que ce mémoire n'a pas testée en isolation, et qui mériterait une vérification propre (interroger le modèle sur sa connaissance du LCC hors de toute tâche de cotation). Cette connaissance générale ne suivrait pas les règles de politique propres à la bibliothèque du musée d'Orsay. L'effet du plan réduit pourrait ainsi se lire comme une forme d'encodage implicite de la politique documentaire de la bibliothèque~: il traduit les priorités curatoriales sans qu'elles soient formulées dans le \textit{prompt}.
+
+Nos résultats sur le few-shot (\S\ref{sec:effet-fewshot}) s'interprètent à cette même lumière. Ce n’est pas un enrichissement neutre. Les exemples \textit{few-shot} constituent eux-mêmes une source d'information contextuelle susceptible d'entrer en tension avec le plan fourni, en particulier lorsque celui-ci est déjà suffisamment spécifique pour guider le modèle sans appui supplémentaire. L'effet dégradant du few-shot sous plan réduit s'interprète alors comme un cas où l'ajout de contexte introduit du bruit plutôt qu'un signal complémentaire~: ce n'est pas la quantité d'information fournie qui prime, mais sa spécificité et sa cohérence avec le reste du \textit{prompt}. 
+
+\subsubsection*{Distribution de confiance bimodale}
+
+Un dernier phénomène méthodologique concerne le comportement des LLM en matière de calibration de la confiance. Plusieurs études indépendantes montrent que le score de confiance produit par les LLM en tâche de classification suit une distribution bimodale plutôt que centrée, à la différence des modèles probabilistes classiques\footcite{bipolarisation2026}.
+
+Cette observation fait écho à nos propres résultats, mais l'interprétation qu'on peut en tirer doit rester prudente. La distribution des \emph{scores de proximité} obtenue sur le corpus est quasi bimodale~: 39,8~\% des notices à 0, 59,7~\% proches de l'exact match, les scores intermédiaires étant marginaux. Deux lectures de cette bimodalité restent possibles, et nos données ne permettent pas de trancher entre elles. 
+
+La première est que le modèle procède réellement par reconnaissance directe de motifs plutôt que par approximation graduelle du référentiel cible, comme le suggère la littérature évoquée ci-dessus. La seconde, plus prudente, tient à la construction même de notre score de proximité~: fondé sur une hiérarchie du barème partiellement reconstituée, ce score peut mécaniquement écraser des nuances réelles du raisonnement du modèle en un résultat binaire, sans que cela reflète une bimodalité propre au modèle lui-même. Le score de \emph{confiance auto-déclaré} par le modèle dans sa réponse structurée, qui aurait pu aider à distinguer ces deux hypothèses, ne reproduit pas cette bimodalité et s'est révélé peu exploitable~: sur 201 notices, 170 (85~\%) portent exactement la même valeur (0,95), sur seulement quatre valeurs distinctes au total. Le lien entre bimodalité du score de proximité et comportement réel du modèle reste donc, à ce stade, une hypothèse motivée par la littérature plutôt qu'un résultat établi sur ce corpus.
+
+
+\subsection{Définir un seuil d'acceptation automatique}
+\label{sec:seuil-acceptation}
+
+Le score de proximité utilisé tout au long de ce mémoire repose sur la connaissance de la cote de référence~: une donnée disponible pour le corpus d'évaluation, mais absente en production sur le fonds réel de la BM'O. Il ne peut donc pas servir de critère d'acceptation automatique, et il faut lui substituer un autre signal.
+
+Le champ \texttt{confiance}, renvoyé par le modèle dans sa réponse structurée au Niveau 3, a été envisagé pour ce rôle. Il s'est révélé peu exploitable~: sur les 201 notices du corpus, 170 (85~\%) portent exactement la même valeur, sur quatre valeurs distinctes au total. Ce signal ne discrimine donc pas, à l'échelle d'une notice individuelle, une proposition fiable d'une proposition incertaine.
+
+La performance historique par grande classe, établie empiriquement dans ce mémoire, reste en revanche exploitable~: 81 à 85~\% d'exact-match pour NK et AM, contre 34,5~\% pour N (tableau~\ref{tab:score-grande-classe}). Un seuil d'acceptation peut donc se construire sur deux critères objectifs ~: la source de la cote dans la cascade, et la classe à laquelle elle appartient. Une cote produite par un niveau déterministe est acceptée sans relecture systématique~; une cote produite par le LLM est acceptée si sa grande classe appartient à un groupe à performance établie, et soumise à relecture sinon.
+
+Cette proposition reste à valider~: elle repose sur la performance observée sur le corpus INHA de référence, pas sur la représentativité du fonds réel de la BM'O.
+
+\subsection{Proposition de workflow pour la Bibliothèque du Musée d'Orsay}
+\label{sec:workflow}
+
+\subsubsection*{Principe général}
+
+Le \textit{pipeline} en cascade se déroule en trois temps, différenciés par le niveau de confiance défini ci-dessus~:
+
+\begin{enumerate}
+\item \textbf{Validation automatique} -- cotes issues du Niveau 0 (ancienne cote locale, déterministe) et du Niveau 1 (appariement ISBN via une source externe autoritaire) ; cotes issues du Niveau 3 pour les grandes classes à forte performance établie (NK, AM).
+\item \textbf{Relecture ciblée} -- cotes issues du Niveau 3 pour les classes à performance intermédiaire (NA, NX, et les classes à faible effectif). La relecture porte sur la sous-classe proposée par le LLM, présentée au bibliothécaire avec la notice source, pour faciliter une décision rapide plutôt qu'un reclassement de zéro.
+\item \textbf{Traitement manuel systématique} -- branche monographie (cote locale B), pour laquelle l'identifiant artiste reste à définir par la bibliothèque ; cotes issues de la classe N, dont l'effet d'attracteur, bien que sensible au plan de cotation utilisé (\S\ref{sec:taxonomie-erreurs}), rend la proposition du LLM peu fiable dans la configuration par défaut recommandée ci-dessous.
+\end{enumerate}
+
+\textbf{La configuration recommandée pour ce \textit{pipeline} diffère de celle envisagée au début de ce mémoire}~: elle retient le plan de cotation réduit et la priorisation RAMEAU, les deux seuls effets robustes à la correction de Bonferroni, mais \textbf{retire le few-shot} de la configuration par défaut, son effet s'étant révélé négatif sous plan réduit (\S\ref{sec:effet-fewshot}). Cette simplification a un avantage opérationnel secondaire~: elle allège le \textit{pipeline} d'une étape de calcul d'\textit{embeddings} et de recherche par similarité, sans perte de performance mesurée.
+
+\subsubsection*{Un exemple filé de bout en bout}
+
+Le corpus d'évaluation INHA utilisé dans ce mémoire ne comporte ni cote locale ni ISBN exploitable, et ces deux niveaux sont désactivés par construction pour se focaliser sur l'engagement du LLM sur la sous-classe. L'exemple suivant est illustratif.
+
+
+\begin{enumerate}
+\item \textbf{Niveau 0} -- la lettre « E » de la Cote locale est extraite et correspond, via \texttt{CORRESPONDANCES\_ORSAY}, à la grande classe LC « N » (Expositions -- catégorie locale qui recouvre les beaux-arts généralistes plutôt qu'un domaine artistique spécifique, ce qui explique la position de cette notice dans une classe aussi hétérogène, cf.~\S\ref{sec:score-global}). Confiance~: 1,0, déterministe.
+\item \textbf{Niveau 1} -- en l'absence d'ISBN dans cet exemple, ce niveau est court-circuité ; la cascade passe directement au Niveau 2+3.
+\item \textbf{Niveau 2} -- le plan de cotation réduit pour la classe N est injecté dans le prompt, ainsi que le sujet RAMEAU disponible pour la notice (le few-shot n'est plus inclus dans la configuration recommandée).
+\item \textbf{Niveau 3} -- le LLM propose une sous-classe. Dans le corpus réel évalué pour ce mémoire, cette notice précise reçoit la prédiction N7560-8266 (\S\ref{sec:taxonomie-erreurs})~: un exemple concret de l'effet d'attracteur documenté plus haut, la classe N restant particulièrement à risque pour ce type d'erreur sous plan réduit.
+\item \textbf{Cutter} -- à supposer une proposition correcte (N7483 par exemple), le nom d'auteur est cherché dans la table BM'O littérature, puis, à défaut, calculé par l'algorithme de Sanborn.
+\item \textbf{Assemblage} -- sous-classe, cutter et année sont concaténés pour former la cote complète.
+\end{enumerate}
+
+\subsubsection*{Estimation du gain de temps}
+
+Une estimation chiffrée du gain de temps réel pour les agents de la BM'O nécessiterait deux données que ce mémoire ne réunit pas~: le temps de vérification manuelle effectivement observé sur le terrain, et la répartition réelle du fonds de 50~000 notices sur les trois voies du \textit{workflow} proposé. À titre indicatif seulement, si l'on projette la répartition par classe observée sur le corpus INHA à l'ensemble du fonds, la voie de validation automatique (NK et AM) concernerait un peu plus du tiers des notices. Un ordre de grandeur a confirmer sur un corpus plus élargi et provenant de la BM’O. 
+
+\subsection{Généralisation à d'autres bibliothèques patrimoniales}
+
+\subsubsection*{Reproductibilité de l'approche sans GPU}
+\label{sec:reproductibilite-gpu}
+
+L'ensemble de ce \textit{pipeline} repose sur des appels API distants (Mistral pour le LLM et les \textit{embeddings}, OpenRouter en secours, LC SRU et Open Library pour la recherche ISBN). Aucune étape ne nécessite de GPU~: le seul calcul local est la similarité cosinus entre \textit{embeddings} précalculés, une opération légère. Le \textit{pipeline} s'exécute intégralement sur Google Colab, sans dépendance à une infrastructure dédiée. C’est un facteur de reproductibilité important pour des bibliothèques patrimoniales aux moyens techniques souvent limités.
+
+
+
+
+
+\subsubsection*{Ce qui devrait être adapté}
+
+La reproductibilité technique du \textit{pipeline} sans GPU ni infrastructure dédiée ne garantit pas, à elle seule, sa transférabilité directe à une autre institution patrimoniale.
+
+Le plan de cotation réduit, dont l'effet s'est révélé le plus déterminant de l'ensemble des expérimentations menées, constitue le premier des éléments à adapter~: il résulte d'un travail de curation manuelle par un spécialiste du fonds, qui ne peut être transposé tel quel à une autre collection et dont la granularité doit rester suffisante pour chaque classe couverte, sous peine de reproduire l'effet de repli observé sur la classe N (\S\ref{sec:taxonomie-erreurs}). Toute institution souhaitant appliquer une démarche comparable devrait engager un travail équivalent de délimitation experte de son propre périmètre de classification.
+
+Les tables de cutter locales, construites pour les domaines les mieux représentés du fonds BM'O, relèvent de la même logique~: leur transposition suppose de disposer, ou de constituer, des tables équivalentes pour les domaines propres à la nouvelle collection.
+
+L'enrichissement par les vedettes RAMEAU suppose enfin un existant de catalogage relativement homogène~: la fragilité de cet enrichissement, déjà discutée (\S\ref{sec:effet-rameau}), tient en grande partie à l'hétérogénéité de l'indexation antérieure du fonds BM'O lui-même. Une institution dont le catalogage matière serait plus consolidé, ou au contraire absent, obtiendrait vraisemblablement des résultats différents de ceux observés ici.
+
+Enfin, l'expérience menée sur le few-shot invite à une prudence méthodologique plus générale~: un enrichissement du \textit{prompt}, quel qu'il soit, n'est pas systématiquement bénéfique, et son effet doit être mesuré plan par plan plutôt que présumé positif. La composition d'un pool d'exemples, si un tel enrichissement est malgré tout retenu, doit en outre être stratifiée en fonction du périmètre documentaire visé, sous peine de reproduire, voire d'aggraver, les biais de représentation déjà présents dans le corpus de référence disponible.
